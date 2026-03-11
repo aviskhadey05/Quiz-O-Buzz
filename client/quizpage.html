@@ -253,7 +253,7 @@ async function loadQuiz(){
 
     try{
 
-        const response = await fetch("https://quiz-o-buzz.onrender.com/api/quiz/" + quizId);
+        const response = await fetch("/api/quiz/" + quizId);
         const data = await response.json();
 
         quiz = data;

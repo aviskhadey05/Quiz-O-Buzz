@@ -193,7 +193,7 @@ async function loadDashboard() {
     try {
 
         const response = await fetch(
-            "https://quiz-o-buzz.onrender.com/api/quiz/my-quizzes?teacherId=" + currentUser._id
+            "/api/quiz/my-quizzes?teacherId=" + currentUser._id
         );
 
         const quizzes = await response.json();
@@ -279,7 +279,7 @@ async function toggleStatus(quizId) {
     try {
 
         await fetch(
-            "https://quiz-o-buzz.onrender.com/api/quiz/toggle/" + quizId,
+            "/api/quiz/toggle/" + quizId,
             { method: "PUT" }
         );
 
