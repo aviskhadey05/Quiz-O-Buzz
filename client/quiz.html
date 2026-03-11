@@ -161,7 +161,7 @@
     </div>
 
 
-  <script>
+<script>
 
 let params = new URLSearchParams(window.location.search);
 let quizId = params.get("id");
@@ -176,7 +176,7 @@ async function loadQuiz(){
 
     try{
 
-        const response = await fetch("/api/quiz/" + quizId);
+        const response = await fetch("https://quiz-o-buzz.onrender.com/api/quiz/" + quizId);
 
         const data = await response.json();
 
@@ -271,7 +271,7 @@ function cancelEdit(index){
 }
 
 
-// SAVE QUESTION (updates quiz locally only)
+// SAVE QUESTION (local update only)
 function saveQuestion(index){
 
     let op1=document.getElementById(`o1-${index}`).value;
@@ -299,12 +299,12 @@ function saveQuestion(index){
 }
 
 
-// UPDATE TIME LIMIT (backend route)
+// UPDATE TIME LIMIT
 async function saveTimeLimit(){
 
     let newTimeLimit=document.getElementById("timeLimitInput").value;
 
-    await fetch("/api/quiz/"+quizId+"/time",{
+    await fetch("https://quiz-o-buzz.onrender.com/api/quiz/"+quizId+"/time",{
 
         method:"PUT",
 
@@ -360,7 +360,7 @@ function copyLink(){
 // SUBMIT QUIZ
 async function submitQuiz(){
 
-    await fetch("/api/quiz/"+quizId+"/publish",{
+    await fetch("https://quiz-o-buzz.onrender.com/api/quiz/"+quizId+"/publish",{
         method:"PUT"
     });
 
