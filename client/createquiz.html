@@ -180,103 +180,131 @@
 
     </div>
 
-    <script>
+   <script>
 
-        let questions = [];
+let questions = [];
 
-        function addQuestion() {
+function addQuestion() {
 
-            let question = document.getElementById("question").value.trim();
+    let question = document.getElementById("question").value.trim();
 
-            let option1 = document.getElementById("option1").value.trim();
+    let option1 = document.getElementById("option1").value.trim();
 
-            let option2 = document.getElementById("option2").value.trim();
+    let option2 = document.getElementById("option2").value.trim();
 
-            let option3 = document.getElementById("option3").value.trim();
+    let option3 = document.getElementById("option3").value.trim();
 
-            let option4 = document.getElementById("option4").value.trim();
+    let option4 = document.getElementById("option4").value.trim();
 
-            let correct = document.getElementById("correctOption").value.trim();
+    let correct = document.getElementById("correctOption").value.trim();
 
-            if (question === "" || option1 === "" || option2 === "" || correct === "") {
+    if (question === "" || option1 === "" || option2 === "" || correct === "") {
 
-                alert("Please fill at least the question, option 1, option 2, and the correct option (no empty spaces)");
+        alert("Please fill at least the question, option 1, option 2, and the correct option (no empty spaces)");
 
-                return;
+        return;
 
-            }
+    }
 
-            let newOptions = [option1, option2];
-            if (option3 !== "") newOptions.push(option3);
-            if (option4 !== "") newOptions.push(option4);
+    let newOptions = [option1, option2];
 
-            questions.push({
-                question: question,
-                options: newOptions,
-                answer: correct
-            });
+    if (option3 !== "") newOptions.push(option3);
 
-            // alert("Question Added");
+    if (option4 !== "") newOptions.push(option4);
 
-            document.getElementById("question").value = "";
+    questions.push({
+        question: question,
+        options: newOptions,
+        answer: correct
+    });
 
-            document.getElementById("option1").value = "";
+    document.getElementById("question").value = "";
 
-            document.getElementById("option2").value = "";
+    document.getElementById("option1").value = "";
 
-            document.getElementById("option3").value = "";
+    document.getElementById("option2").value = "";
 
-            document.getElementById("option4").value = "";
+    document.getElementById("option3").value = "";
 
-            document.getElementById("correctOption").value = "";
+    document.getElementById("option4").value = "";
 
-        }
+    document.getElementById("correctOption").value = "";
 
-        function saveQuiz() {
+}
 
-            let title = document.getElementById("quizTitle").value.trim();
-            let timeLimit = document.getElementById("timeLimit").value;
 
-            if (title === "") {
+async function saveQuiz() {
 
-                alert("Enter Quiz Title (cannot be empty spaces)");
+    let title = document.getElementById("quizTitle").value.trim();
 
-                return;
+    let timeLimit = document.getElementById("timeLimit").value;
 
-            }
+    if (title === "") {
 
-            if (questions.length == 0) {
+        alert("Enter Quiz Title (cannot be empty spaces)");
 
-                alert("Add at least one question");
+        return;
 
-                return;
+    }
 
-            }
+    if (questions.length == 0) {
 
-            let quizId = "quiz_" + Date.now();
+        alert("Add at least one question");
 
-            let quiz = {
-                id: quizId,
+        return;
+
+    }
+
+    try {
+
+        const response = await fetch("/api/quiz/create", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
                 title: title,
                 timeLimit: timeLimit,
-                questions: questions,
-                status: "draft" // New quizzes are drafts by default
-            };
+                questions: questions
+            })
 
-            localStorage.setItem(quizId, JSON.stringify(quiz));
+        });
 
-            // redirect to quiz.html
+        const data = await response.json();
+
+        if (response.ok) {
+
+            // MongoDB generated ID
+            const quizId = data.quiz._id;
+
+            // redirect to quiz page
             window.location.href = "quiz.html?id=" + quizId;
 
-        }
+        } else {
 
-        function goBack() {
-
-            window.location.href = "teacher.html";
+            alert(data.message || "Quiz creation failed");
 
         }
 
-    </script>
+    } catch (error) {
+
+        alert("Server error");
+
+    }
+
+}
+
+
+function goBack() {
+
+    window.location.href = "teacher.html";
+
+}
+
+</script>
 
 </body>
 
