@@ -180,8 +180,10 @@
 async function loadDashboard() {
 
     let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
     if (currentUser) {
-        document.getElementById("greeting").innerText = "Welcome back, " + currentUser.name + "!";
+        document.getElementById("greeting").innerText =
+            "Welcome back, " + currentUser.name + "!";
     }
 
     let quizListDiv = document.getElementById("myQuizzesList");
@@ -190,52 +192,75 @@ async function loadDashboard() {
 
     try {
 
-        // CHANGE: load quizzes from backend instead of localStorage
-        const response = await fetch("https://quiz-o-buzz.onrender.com/api/quiz/my-quizzes");
+        const response = await fetch(
+            "https://quiz-o-buzz.onrender.com/api/quiz/my-quizzes?teacherId=" + currentUser._id
+        );
+
         const quizzes = await response.json();
 
         quizzes.forEach(quizObj => {
 
             quizCount++;
 
-            let statusBadge = quizObj.status === "active"
-                ? `<span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; margin-left: 10px;">ACTIVE</span>`
-                : `<span style="background: #fbbf24; color: black; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; margin-left: 10px;">DRAFT</span>`;
+            let statusBadge = quizObj.status === "published"
+                ? `<span style="background:#22c55e;color:white;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;margin-left:10px;">ACTIVE</span>`
+                : `<span style="background:#fbbf24;color:black;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;margin-left:10px;">DRAFT</span>`;
 
-            let toggleBtnText = quizObj.status === "active" ? "Mark as Draft" : "Publish Quiz";
+            let toggleBtnText =
+                quizObj.status === "published"
+                    ? "Mark as Draft"
+                    : "Publish Quiz";
 
             htmlContent += `
             <div style="background: rgba(255,255,255,0.1); padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                     <strong style="color: #fde047; font-size: 18px;">${quizObj.title}</strong> ${statusBadge}
                     <br>
-                    <span style="font-size: 12px; opacity: 0.8;">Questions: ${quizObj.questions ? quizObj.questions.length : 0} | Time: ${quizObj.timeLimit || 0} mins</span>
+                    <span style="font-size: 12px; opacity: 0.8;">
+                    Questions: ${quizObj.questions ? quizObj.questions.length : 0} | 
+                    Time: ${quizObj.timeLimit || 0} mins
+                    </span>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="toggleStatus('${quizObj._id}')" style="width: auto; margin: 0; padding: 8px 15px; font-size: 14px; background: rgba(255,255,255,0.2); color: white;">${toggleBtnText}</button>
-                    <button onclick="window.location.href='quiz.html?id=${quizObj._id}'" style="width: auto; margin: 0; padding: 8px 15px; font-size: 14px;">Preview / Edit</button>
+
+                <div style="display:flex;gap:10px;">
+                    <button onclick="toggleStatus('${quizObj._id}')"
+                        style="width:auto;margin:0;padding:8px 15px;font-size:14px;background:rgba(255,255,255,0.2);color:white;">
+                        ${toggleBtnText}
+                    </button>
+
+                    <button onclick="window.location.href='quiz.html?id=${quizObj._id}'"
+                        style="width:auto;margin:0;padding:8px 15px;font-size:14px;">
+                        Preview / Edit
+                    </button>
                 </div>
             </div>`;
         });
 
     } catch (error) {
 
-        quizListDiv.innerHTML = "<p style='text-align:center;'>Unable to load quizzes.</p>";
+        quizListDiv.innerHTML =
+            "<p style='text-align:center;'>Unable to load quizzes.</p>";
         return;
 
     }
 
-    document.getElementById("statsDisplay").innerText = "You have created " + quizCount + " quizzes.";
+    document.getElementById("statsDisplay").innerText =
+        "You have created " + quizCount + " quizzes.";
 
     if (quizCount === 0) {
-        quizListDiv.innerHTML = "<p style='text-align:center;'>You haven't created any quizzes yet. Click 'Create Quiz' to get started!</p>";
+
+        quizListDiv.innerHTML =
+            "<p style='text-align:center;'>You haven't created any quizzes yet. Click 'Create Quiz' to get started!</p>";
+
     } else {
+
         quizListDiv.innerHTML = htmlContent;
+
     }
+
 }
 
 
-// Call on load
 window.onload = loadDashboard;
 
 
@@ -243,19 +268,20 @@ function createQuiz() {
     window.location.href = "createquiz.html";
 }
 
+
 function studentScores() {
     window.location.href = "studscores.html";
 }
 
 
-// CHANGE: update status via backend instead of localStorage
 async function toggleStatus(quizId) {
 
     try {
 
-        await fetch("https://quiz-o-buzz.onrender.com/api/quiz/toggle/" + quizId, {
-            method: "PUT"
-        });
+        await fetch(
+            "https://quiz-o-buzz.onrender.com/api/quiz/toggle/" + quizId,
+            { method: "PUT" }
+        );
 
         loadDashboard();
 

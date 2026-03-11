@@ -180,7 +180,7 @@
 
     </div>
 
-   <script>
+  <script>
 
 let questions = [];
 
@@ -194,7 +194,7 @@ function addQuestion() {
     let correct = document.getElementById("correctOption").value.trim();
 
     if (question === "" || option1 === "" || option2 === "" || correct === "") {
-        alert("Please fill at least the question, option 1, option 2, and the correct option (no empty spaces)");
+        alert("Please fill at least the question, option 1, option 2, and the correct option.");
         return;
     }
 
@@ -215,8 +215,8 @@ function addQuestion() {
     document.getElementById("option3").value = "";
     document.getElementById("option4").value = "";
     document.getElementById("correctOption").value = "";
-
 }
+
 
 
 async function saveQuiz() {
@@ -225,16 +225,24 @@ async function saveQuiz() {
     let timeLimit = document.getElementById("timeLimit").value;
 
     if (title === "") {
-        alert("Enter Quiz Title (cannot be empty spaces)");
+        alert("Enter Quiz Title");
         return;
     }
 
-    if (questions.length == 0) {
+    if (questions.length === 0) {
         alert("Add at least one question");
         return;
     }
 
     try {
+
+        let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+            alert("Please login again.");
+            window.location.href = "login.html";
+            return;
+        }
 
         const response = await fetch("https://quiz-o-buzz.onrender.com/api/quiz/create", {
             method: "POST",
@@ -244,7 +252,8 @@ async function saveQuiz() {
             body: JSON.stringify({
                 title: title,
                 timeLimit: timeLimit,
-                questions: questions
+                questions: questions,
+                teacherId: currentUser._id
             })
         });
 
@@ -272,11 +281,12 @@ async function saveQuiz() {
 
 
 function goBack() {
+
     window.location.href = "teacher.html";
+
 }
 
 </script>
-
 </body>
 
 </html>

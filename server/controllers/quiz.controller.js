@@ -1,14 +1,17 @@
 const Quiz = require("../models/quiz.model");
 
+
+// CREATE QUIZ
 exports.createQuiz = async (req, res) => {
     try {
 
-        const { title, timeLimit, questions } = req.body;
+        const { title, timeLimit, questions, teacherId } = req.body;
 
         const quiz = new Quiz({
             title,
             timeLimit,
-            questions
+            questions,
+            teacherId
         });
 
         await quiz.save();
@@ -28,6 +31,8 @@ exports.createQuiz = async (req, res) => {
 };
 
 
+
+// GET QUIZ BY ID
 exports.getQuizById = async (req, res) => {
 
     try {
@@ -52,6 +57,9 @@ exports.getQuizById = async (req, res) => {
 
 };
 
+
+
+// UPDATE TIME LIMIT
 exports.updateTimeLimit = async (req,res)=>{
 
     try{
@@ -79,6 +87,8 @@ exports.updateTimeLimit = async (req,res)=>{
 };
 
 
+
+// PUBLISH QUIZ
 exports.publishQuiz = async (req,res)=>{
 
     await Quiz.findByIdAndUpdate(req.params.id,{
@@ -92,11 +102,13 @@ exports.publishQuiz = async (req,res)=>{
 };
 
 
+
+// GET ALL QUIZZES CREATED BY TEACHER
 exports.getTeacherQuizzes = async (req, res) => {
 
     try {
 
-        const teacherId = req.user.id;
+        const teacherId = req.query.teacherId;
 
         const quizzes = await Quiz.find({ teacherId });
 
@@ -111,6 +123,8 @@ exports.getTeacherQuizzes = async (req, res) => {
 };
 
 
+
+// TOGGLE QUIZ STATUS
 exports.toggleQuizStatus = async (req, res) => {
 
     try {

@@ -249,7 +249,7 @@
 
 
 
-       <script>
+      <script>
 
 async function startQuiz() {
 
@@ -266,6 +266,7 @@ async function startQuiz() {
 
     let id = "";
 
+    // Extract quiz ID from link
     if (link.includes("id=")) {
         id = link.split("id=")[1];
     } else {
@@ -280,23 +281,29 @@ async function startQuiz() {
 
     try {
 
-        // FETCH QUIZ FROM DATABASE
+        // Fetch quiz from database
         const response = await fetch("https://quiz-o-buzz.onrender.com/api/quiz/" + id);
+
+        if (!response.ok) {
+            throw new Error("Quiz not found");
+        }
 
         const quiz = await response.json();
 
-        if (!quiz || quiz.message === "Quiz not found") {
+        if (!quiz) {
             errorMsg.innerText = "Quiz not found! Please check the link.";
             errorMsg.style.display = "block";
             return;
         }
 
-        if (quiz.status === "draft") {
-            errorMsg.innerText = "This quiz is currently a Draft and not available yet.";
+        // Check if quiz is published
+        if (quiz.status !== "published") {
+            errorMsg.innerText = "This quiz is not available yet.";
             errorMsg.style.display = "block";
             return;
         }
 
+        // Redirect student to quiz page
         window.location.href = "quizpage.html?id=" + id;
 
     } catch (error) {
