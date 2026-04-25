@@ -193,9 +193,8 @@ async function loadDashboard() {
     try {
 
         // ✅ Send token in the request
-        const response = await fetch(
-            "/api/quiz/my-quizzes?teacherId=" + currentUser.id,
-            { headers: getAuthHeaders() }
+        const response = await fetch(BASE_URL + "/api/quiz/my-quizzes?teacherId=" + currentUser.id, {
+                headers: getAuthHeaders() }
         );
 
         if (response.status === 401) {
@@ -268,7 +267,7 @@ async function toggleStatus(quizId) {
 
     try {
 
-        const response = await fetch("/api/quiz/toggle/" + quizId, {
+        const response = await fetch(BASE_URL + "/api/quiz/toggle/" + quizId, {
             method: "PUT",
             headers: getAuthHeaders()       // ✅ token included
         });

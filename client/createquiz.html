@@ -240,7 +240,7 @@ async function saveQuiz() {
 
     try {
 
-        const response = await fetch("/api/quiz/create", {
+        const response = await fetch(BASE_URL + "/api/quiz/create", {
             method: "POST",
             headers: getAuthHeaders(),          // ✅ includes Bearer token
             body: JSON.stringify({

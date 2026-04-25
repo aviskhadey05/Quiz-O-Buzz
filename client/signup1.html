@@ -158,7 +158,7 @@ document.getElementById("signupForm").addEventListener("submit", async function(
 
     try{
 
-        const response = await fetch("/api/auth/register",{
+        const response = await fetch(BASE_URL + "/api/auth/register", {
 
             method:"POST",
             headers:{

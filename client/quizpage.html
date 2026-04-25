@@ -254,7 +254,7 @@ async function loadQuiz() {
     try {
 
         // ✅ Token included
-        const response = await fetch("/api/quiz/" + quizId, {
+        const response = await fetch(BASE_URL + "/api/quiz/" + quizId, {
             headers: getAuthHeaders()
         });
 
@@ -303,7 +303,7 @@ async function submitQuiz() {
 
         const currentUser = checkAuth();
 
-        await fetch("/api/result/", {
+        await fetch(BASE_URL + "/api/result/", {
             method: "POST",
             headers: getAuthHeaders(),
             body: JSON.stringify({

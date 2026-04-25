@@ -7,7 +7,9 @@
  *   - checkAuth()       → redirects to login if no token found
  *   - logout()          → clears storage and redirects to login
  */
-
+const BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? ""
+    : "https://quiz-o-buzz-p518.onrender.com";
 function getAuthHeaders() {
     const token = localStorage.getItem("token");
     return {

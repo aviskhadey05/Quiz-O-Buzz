@@ -275,7 +275,7 @@ async function startQuiz() {
     try {
 
         // ✅ Token included — quiz endpoint is now protected
-        const response = await fetch("/api/quiz/" + id, {
+        const response = await fetch(BASE_URL + "/api/quiz/" + id, {
             headers: getAuthHeaders()
         });
 
