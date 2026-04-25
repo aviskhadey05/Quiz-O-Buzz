@@ -146,6 +146,7 @@
     </div>
 
    <script>
+
 document.getElementById("signupForm").addEventListener("submit", async function(event){
 
     event.preventDefault();
@@ -157,7 +158,7 @@ document.getElementById("signupForm").addEventListener("submit", async function(
 
     try{
 
-        const response = await fetch("/api/auth/register",{ 
+        const response = await fetch("/api/auth/register",{
 
             method:"POST",
             headers:{
@@ -175,8 +176,18 @@ document.getElementById("signupForm").addEventListener("submit", async function(
         const data = await response.json();
 
         if(response.ok){
-            alert("Signup successful!");
-            window.location.href="login.html";
+
+            // ✅ Auto-login after signup — store token and user
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+
+            // Redirect straight to the right dashboard
+            if(data.user.role === "teacher"){
+                window.location.href = "teacher.html";
+            } else {
+                window.location.href = "student.html";
+            }
+
         }
         else{
             alert(data.message);
@@ -188,6 +199,7 @@ document.getElementById("signupForm").addEventListener("submit", async function(
     }
 
 });
+
 </script>
 
 </body>

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-
+    <script src="auth-helper.js"></script>
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -234,50 +234,38 @@ async function saveQuiz() {
         return;
     }
 
+    // ✅ Use checkAuth() — redirects to login if no token
+    const currentUser = checkAuth();
+    if (!currentUser) return;
+
     try {
-
-        let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-        if (!currentUser) {
-            alert("Please login again.");
-            window.location.href = "login.html";
-            return;
-        }
 
         const response = await fetch("/api/quiz/create", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: getAuthHeaders(),          // ✅ includes Bearer token
             body: JSON.stringify({
                 title: title,
                 timeLimit: timeLimit,
                 questions: questions,
-                teacherId: currentUser._id
+                teacherId: currentUser.id        // ✅ updated from ._id to .id
             })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-
-            const quizId = data.quiz._id;
-
-            window.location.href = "quiz.html?id=" + quizId;
-
+            alert("Quiz created successfully!");
+            window.location.href = "teacher.html";
         } else {
-
-            alert(data.message || "Quiz creation failed");
-
+            alert(data.message || "Failed to create quiz.");
         }
 
     } catch (error) {
-
         alert("Server error. Please try again.");
-
     }
 
 }
+
 
 
 function goBack() {

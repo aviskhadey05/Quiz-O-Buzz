@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-
+    <script src="auth-helper.js"></script>
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -264,14 +264,7 @@ async function startQuiz() {
         return;
     }
 
-    let id = "";
-
-    // Extract quiz ID from link
-    if (link.includes("id=")) {
-        id = link.split("id=")[1];
-    } else {
-        id = link;
-    }
+    let id = link.includes("id=") ? link.split("id=")[1] : link;
 
     if (!id) {
         errorMsg.innerText = "Invalid link format. Please check again.";
@@ -281,36 +274,28 @@ async function startQuiz() {
 
     try {
 
-        // Fetch quiz from database
-        const response = await fetch("/api/quiz/" + id);
+        // ✅ Token included — quiz endpoint is now protected
+        const response = await fetch("/api/quiz/" + id, {
+            headers: getAuthHeaders()
+        });
 
-        if (!response.ok) {
-            throw new Error("Quiz not found");
-        }
+        if (response.status === 401) { logout(); return; }
+
+        if (!response.ok) throw new Error("Quiz not found");
 
         const quiz = await response.json();
 
-        if (!quiz) {
-            errorMsg.innerText = "Quiz not found! Please check the link.";
-            errorMsg.style.display = "block";
-            return;
-        }
-
-        // Check if quiz is published
         if (quiz.status !== "published") {
             errorMsg.innerText = "This quiz is not available yet.";
             errorMsg.style.display = "block";
             return;
         }
 
-        // Redirect student to quiz page
         window.location.href = "quizpage.html?id=" + id;
 
     } catch (error) {
-
         errorMsg.innerText = "Unable to connect to server.";
         errorMsg.style.display = "block";
-
     }
 
 }

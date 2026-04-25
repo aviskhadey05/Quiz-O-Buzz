@@ -154,6 +154,8 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         if(response.ok){
 
+            // ✅ Store token AND user from the new response shape
+            localStorage.setItem("token", data.token);
             localStorage.setItem("currentUser", JSON.stringify(data.user));
 
             if(data.user.role === "teacher"){

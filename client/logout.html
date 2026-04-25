@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="auth-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logout</title>
@@ -49,19 +50,17 @@
 
     <script>
 
-        // remove stored users (just clear active session)
-        localStorage.removeItem("user"); // legacy
-        localStorage.removeItem("currentUser"); // new logic
+        localStorage.removeItem("token");
+localStorage.removeItem("currentUser");
 
-        function goLogin() {
-            window.location.href = "login.html";
-        }
+function goLogin() {
+    window.location.href = "login.html";
+}
 
-        function goHome() {
+function goHome() {
+    window.location.href = "index.html";
+}
 
-            window.location.href = "index.html";
-
-        }
 
     </script>
 

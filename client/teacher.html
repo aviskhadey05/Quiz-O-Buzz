@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-
+    <script src="auth-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -179,15 +179,12 @@
 
 async function loadDashboard() {
 
-    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    // ✅ Redirect to login if not authenticated
+    const currentUser = checkAuth();
+    if (!currentUser) return;
 
-    if (currentUser) {
-        document.getElementById("greeting").innerText =
-            "Welcome back, " + currentUser.name + "!";
-    } else {
-        window.location.href = "login.html";
-        return;
-    }
+    document.getElementById("greeting").innerText =
+        "Welcome back, " + currentUser.name + "!";
 
     let quizListDiv = document.getElementById("myQuizzesList");
     let quizCount = 0;
@@ -195,9 +192,16 @@ async function loadDashboard() {
 
     try {
 
+        // ✅ Send token in the request
         const response = await fetch(
-            "/api/quiz/my-quizzes?teacherId=" + currentUser._id
+            "/api/quiz/my-quizzes?teacherId=" + currentUser.id,
+            { headers: getAuthHeaders() }
         );
+
+        if (response.status === 401) {
+            logout();
+            return;
+        }
 
         const quizzes = await response.json();
 
@@ -251,29 +255,12 @@ async function loadDashboard() {
         "You have created " + quizCount + " quizzes.";
 
     if (quizCount === 0) {
-
         quizListDiv.innerHTML =
             "<p style='text-align:center;'>You haven't created any quizzes yet. Click 'Create Quiz' to get started!</p>";
-
     } else {
-
         quizListDiv.innerHTML = htmlContent;
-
     }
 
-}
-
-
-window.onload = loadDashboard;
-
-
-function createQuiz() {
-    window.location.href = "createquiz.html";
-}
-
-
-function studentScores() {
-    window.location.href = "studscores.html";
 }
 
 
@@ -281,20 +268,22 @@ async function toggleStatus(quizId) {
 
     try {
 
-        await fetch(
-            "/api/quiz/toggle/" + quizId,
-            { method: "PUT" }
-        );
+        const response = await fetch("/api/quiz/toggle/" + quizId, {
+            method: "PUT",
+            headers: getAuthHeaders()       // ✅ token included
+        });
+
+        if (response.status === 401) { logout(); return; }
 
         loadDashboard();
 
     } catch (error) {
-
-        alert("Could not update quiz status");
-
+        alert("Error updating quiz status.");
     }
 
 }
+
+loadDashboard();
 
 </script>
 

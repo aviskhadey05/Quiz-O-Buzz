@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-
+    <script src="auth-helper.js"></script>
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -249,168 +249,88 @@ let timeLeft;
 let timer;
 let studentName = "";
 
-async function loadQuiz(){
+async function loadQuiz() {
 
-    try{
+    try {
 
-        const response = await fetch("/api/quiz/" + quizId);
+        // ✅ Token included
+        const response = await fetch("/api/quiz/" + quizId, {
+            headers: getAuthHeaders()
+        });
+
+        if (response.status === 401) { logout(); return; }
+
         const data = await response.json();
-
         quiz = data;
 
-        if(!quiz){
+        if (!quiz) {
             document.getElementById("title").innerText = "Error: Quiz Not Found";
-            document.getElementById("startSection").innerHTML =
-            "<p style='color:#ff4d4d;font-weight:bold;'>The requested quiz does not exist.</p>";
             return;
         }
 
-        if(quiz.status !== "published"){
+        if (quiz.status !== "published") {
             document.getElementById("title").innerText = "Quiz Unavailable";
             document.getElementById("startSection").innerHTML =
-            "<p style='color:#fbbf24;font-weight:bold;'>This quiz is not available yet.</p>";
+                "<p style='color:#fbbf24;font-weight:bold;'>This quiz is not available yet.</p>";
             return;
         }
 
         document.getElementById("title").innerText = quiz.title;
-
         document.getElementById("quizInfo").innerText =
-        "Time Limit: " + (quiz.timeLimit || 0) + " minutes | Questions: " +
-        (quiz.questions ? quiz.questions.length : 0);
+            "Time Limit: " + (quiz.timeLimit || 0) + " minutes | Questions: " +
+            (quiz.questions ? quiz.questions.length : 0);
 
         timeLeft = (quiz.timeLimit || 0) * 60;
-
         renderQuestions();
 
-    }
-    catch(error){
-
+    } catch (error) {
         document.getElementById("title").innerText = "Error loading quiz";
-
     }
 
 }
 
 
+async function submitQuiz() {
 
-function renderQuestions(){
+    let score = 0;
 
-    quiz.questions.forEach((q,i)=>{
-
-        let div=document.createElement("div");
-
-        div.className="question";
-
-        div.innerHTML=`
-
-<b>Q${i+1}. ${q.question}</b>
-
-${q.options.map(opt => `
-
-<label class="option">
-
-<input type="radio" name="q${i}" value="${opt}" onclick="selectOption(this,${i})">
-
-${opt}
-
-</label>
-
-`).join("")}
-
-`;
-
-        document.getElementById("questions").appendChild(div);
-
+    quiz.questions.forEach((q, i) => {
+        if (answers[i] == q.answer) score++;
     });
 
-}
+    // ✅ Save score to the database with token
+    try {
 
+        const currentUser = checkAuth();
 
+        await fetch("/api/result/", {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                name: currentUser ? currentUser.name : studentName,
+                score: score
+            })
+        });
 
-function startQuizTimer(){
-
-    studentName=document.getElementById("studentName").value.trim();
-
-    if(!studentName){
-        alert("Please enter your name to start the quiz.");
-        return;
+    } catch (e) {
+        console.warn("Could not save score to server:", e);
     }
 
-    document.getElementById("startSection").style.display="none";
-    document.getElementById("quizSection").style.display="block";
-
-    let timerDisplay=document.getElementById("timer");
-
-    timer=setInterval(function(){
-
-        let minutes=Math.floor(timeLeft/60);
-        let seconds=timeLeft%60;
-
-        timerDisplay.innerText=
-        "Time Left: "+minutes+":"+(seconds<10?"0":"")+seconds;
-
-        timeLeft--;
-
-        if(timeLeft<0){
-
-            clearInterval(timer);
-            alert("Time is up! Quiz submitted automatically.");
-            submitQuiz();
-
-        }
-
-    },1000);
-
-}
-
-
-
-function selectOption(radio,index){
-
-    let options=document.getElementsByName("q"+index);
-
-    options.forEach(opt=>{
-        opt.parentElement.classList.remove("selected");
-    });
-
-    radio.parentElement.classList.add("selected");
-
-    answers[index]=radio.value;
-
-}
-
-
-
-function submitQuiz(){
-
-    let score=0;
-
-    quiz.questions.forEach((q,i)=>{
-        if(answers[i]==q.answer){
-            score++;
-        }
-    });
-
-    let pastScores=JSON.parse(localStorage.getItem("pastScores"))||[];
-
+    // Keep localStorage for result.html display (no change needed there)
+    let pastScores = JSON.parse(localStorage.getItem("pastScores")) || [];
     pastScores.push({
-        quizTitle:quiz.title,
-        score:score,
-        total:quiz.questions.length,
-        date:new Date().toLocaleString()
+        quizTitle: quiz.title,
+        score: score,
+        total: quiz.questions.length,
+        date: new Date().toLocaleString()
     });
-
-    localStorage.setItem("pastScores",JSON.stringify(pastScores));
+    localStorage.setItem("pastScores", JSON.stringify(pastScores));
     localStorage.setItem(quizId, JSON.stringify(quiz));
     localStorage.setItem("studentAnswers_" + quizId, JSON.stringify(answers));
 
-    window.location.href="result.html?id="+quizId;
+    window.location.href = "result.html?id=" + quizId;
 
 }
-
-
-
-loadQuiz();
 
 </script>
 
